@@ -11,7 +11,6 @@ class BardAssistant:
         self._model_name = conf["model_name"]
         self._prompt = conf['prompt']
         self._proxy = conf['proxy']
-
         genai.configure(api_key=self._api_key)
         self._bard = genai.GenerativeModel(self._model_name)
 
@@ -26,6 +25,9 @@ class BardAssistant:
         return False
 
     def get_answer(self, msg: str, sender: str = None) -> str:
+        if self._proxy:
+            os.environ['HTTP_PROXY'] = self._proxy
+            os.environ['HTTPS_PROXY'] = self._proxy
         response = self._bard.generate_content([{'role': 'user', 'parts': [msg]}])
         return response.text
 
@@ -35,7 +37,6 @@ if __name__ == "__main__":
     config = Config().BardAssistant
     if not config:
         exit(0)
-
     bard_assistant = BardAssistant(config)
     if bard_assistant._proxy:
         os.environ['HTTP_PROXY'] = bard_assistant._proxy

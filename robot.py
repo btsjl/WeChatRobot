@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import os
 import logging
 import re
 import time
@@ -147,10 +147,6 @@ class Robot(Job):
 
             if msg.is_at(self.wxid):  # 被@
                 self.toAt(msg)
-
-            else:  # 其他消息
-                self.toChengyu(msg)
-
             return  # 处理完群聊信息，后面就不需要处理了
 
         # 非群聊信息，按消息类型进行处理
@@ -166,8 +162,14 @@ class Robot(Job):
                 if msg.content == "^更新$":
                     self.config.reload()
                     self.LOG.info("已更新")
+                else: 
+                    self.toChitchat(msg)
+                    print(msg.sender+" send message "+msg.content)
             else:
                 self.toChitchat(msg)  # 闲聊
+        elif msg.type == 3:
+            if msg.from_self:    # 图片消息
+                print("download file "+self.wcf.download_image(msg.id,msg.extra,"F:\game\WeChatRobot\WeChatImg")+" sussesful")
 
     def onMsg(self, msg: WxMsg) -> int:
         try:
